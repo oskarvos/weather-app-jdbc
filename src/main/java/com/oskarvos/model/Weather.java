@@ -1,5 +1,7 @@
 package com.oskarvos.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 
 public class Weather {

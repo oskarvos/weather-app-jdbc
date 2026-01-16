@@ -4,6 +4,7 @@ import com.oskarvos.model.Weather;
 import com.oskarvos.util.DatabaseConnection;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 
 public class WeatherRepository {
 
@@ -17,13 +18,16 @@ public class WeatherRepository {
             pstmt.setDouble(2, weather.getTemperature());
             pstmt.executeUpdate();
 
-            ResultSet generatedKeys = pstmt.getGeneratedKeys();
-
-            if (generatedKeys.next()) {
-                weather.setId(generatedKeys.getLong(1));
-            } else {
-                throw new SQLException("Created weather failed, no ID.");
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    weather.setId(generatedKeys.getLong(1));
+                } else {
+                    throw new SQLException("Created weather failed, no ID.");
+                }
             }
+
+            weather.setRecordDateTime(LocalDateTime.now());
+
             return weather;
 
         } catch (Exception e) {

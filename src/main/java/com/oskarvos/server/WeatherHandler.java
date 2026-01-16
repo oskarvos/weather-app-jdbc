@@ -1,9 +1,8 @@
 package com.oskarvos.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oskarvos.model.Weather;
 import com.oskarvos.repository.WeatherRepository;
+import com.oskarvos.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -15,10 +14,11 @@ import java.nio.charset.StandardCharsets;
 public class WeatherHandler implements HttpHandler {
 
     private final WeatherRepository weatherRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonUtil jsonUtil;
 
     public WeatherHandler(WeatherRepository weatherRepository) {
         this.weatherRepository = weatherRepository;
+        this.jsonUtil = new JsonUtil();
     }
 
     @Override
@@ -38,9 +38,8 @@ public class WeatherHandler implements HttpHandler {
             InputStream is = exchange.getRequestBody();
             String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
-            // Парсим JSON вручную (простой вариант)
-            // Формат: {"city":"Moscow","temperature":22.5}
-            Weather weather = parseWeatherData(body);
+            // Парсим JSON
+            Weather weather = jsonUtil.fromJson(body, Weather.class);
 
             if (weather.getCity() == null || weather.getTemperature() == null) {
                 sendResponse(exchange, 400, "Invalid JSON format");
@@ -51,24 +50,12 @@ public class WeatherHandler implements HttpHandler {
             Weather savedWeather = weatherRepository.save(weather);
 
             // Формируем JSON ответ
-            String response = String.format(
-                    "{\"id\":%d,\"city\":\"%s\",\"temperature\":%.1f,\"message\":\"Weather saved successfully\"}",
-                    savedWeather.getId(), savedWeather.getCity(), savedWeather.getTemperature()
-            );
+            String response = jsonUtil.toJson(savedWeather);
 
             sendJsonResponse(exchange, 201, response);
 
         } catch (Exception e) {
             sendResponse(exchange, 500, "Server Error: " + e.getMessage());
-        }
-    }
-
-    // Парсинг JSON
-    private Weather parseWeatherData(String json) {
-        try {
-            return objectMapper.readValue(json, Weather.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         }
     }
 
