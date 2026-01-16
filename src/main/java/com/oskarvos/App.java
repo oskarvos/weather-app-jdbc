@@ -1,25 +1,39 @@
 package com.oskarvos;
 
-import com.oskarvos.controller.WeatherController;
 import com.oskarvos.repository.WeatherRepository;
+import com.oskarvos.server.SimpleHttpServer;
+import com.oskarvos.util.DatabaseConnection;
 
-/**
- * Hello world!
- *
- */
+import java.sql.Connection;
+
 public class App {
     public static void main(String[] args) {
         try {
-            System.out.println("Start weather application");
+            System.out.println("=== Weather REST API ===");
 
-            WeatherRepository weatherRepository = new WeatherRepository();
-            WeatherController weatherController = new WeatherController(weatherRepository);
-            weatherController.start();
+            // Проверяем подключение к БД
+            try (Connection conn = DatabaseConnection.getConnection()) {
+                System.out.println("✅ Database connected successfully!");
+            } catch (Exception e) {
+                System.err.println("❌ Database connection failed: " + e.getMessage());
+                return;
+            }
 
-            System.out.println("Finished weather application");
+            // Создаем репозиторий
+            WeatherRepository repository = new WeatherRepository();
+
+            // Запускаем HTTP сервер
+            SimpleHttpServer server = new SimpleHttpServer(repository);
+            server.start();
+
+            System.out.println("\n📋 How to use:");
+            System.out.println("1. Send POST request to: http://localhost:8080/weather");
+            System.out.println("2. Content-Type: application/json");
+            System.out.println("3. JSON body example: {\"city\":\"Moscow\",\"temperature\":22.5}");
+
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.err.println("Failed to start server: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
 }

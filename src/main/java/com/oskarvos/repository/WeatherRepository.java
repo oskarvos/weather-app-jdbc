@@ -9,7 +9,7 @@ public class WeatherRepository {
 
     public Weather save(Weather weather) {
 
-        String sql = "INSERT INTO weather (city, temperature) VALUES (?,?)";
+        String sql = "INSERT INTO weather_data (city, temperature) VALUES (?,?)";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
