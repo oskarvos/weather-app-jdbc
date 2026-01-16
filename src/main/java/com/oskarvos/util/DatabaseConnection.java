@@ -22,9 +22,7 @@ public class DatabaseConnection {
 
             properties.load(input);
 
-            Class.forName("org.postgresql.Driver");
-
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Failed to load database configuration", e);
         }
     }
@@ -36,6 +34,5 @@ public class DatabaseConnection {
 
         return DriverManager.getConnection(url, user, password);
     }
-
 
 }

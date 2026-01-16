@@ -12,10 +12,13 @@ public class Weather {
     public Weather() {
     }
 
-    public Weather(String city, Double temperature, LocalDateTime recordDateTime) {
+    public Weather(String city, Double temperature) {
         this.city = city;
         this.temperature = temperature;
-        this.recordDateTime = recordDateTime;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getCity() {
@@ -28,6 +31,10 @@ public class Weather {
 
     public LocalDateTime getRecordDateTime() {
         return recordDateTime;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setCity(String city) {
