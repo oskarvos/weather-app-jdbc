@@ -1,5 +1,7 @@
 package com.oskarvos.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oskarvos.model.Weather;
 import com.oskarvos.repository.WeatherRepository;
 import com.sun.net.httpserver.HttpExchange;
@@ -13,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 public class WeatherHandler implements HttpHandler {
 
     private final WeatherRepository weatherRepository;
+    private final ObjectMapper objectMapper;
 
     public WeatherHandler(WeatherRepository weatherRepository) {
         this.weatherRepository = weatherRepository;
@@ -60,33 +63,13 @@ public class WeatherHandler implements HttpHandler {
         }
     }
 
-    // Простой парсинг JSON без библиотек
+    // Парсинг JSON
     private Weather parseWeatherData(String json) {
         try {
-            // Удаляем пробелы и фигурные скобки
-            json = json.trim().replace("{", "").replace("}", "");
-
-            String city = null;
-            Double temperature = null;
-
-            // Разбиваем по запятым
-            String[] parts = json.split(",");
-            for (String part : parts) {
-                part = part.trim();
-                if (part.startsWith("\"city\":")) {
-                    city = part.substring(8, part.length() - 1); // Убираем "city":" и "
-                } else if (part.startsWith("\"temperature\":")) {
-                    temperature = Double.parseDouble(part.substring(14));
-                }
-            }
-
-            if (city != null && temperature != null) {
-                return new Weather(city, temperature);
-            }
-        } catch (Exception e) {
-            // Если парсинг не удался
+            return objectMapper.readValue(json, Weather.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
-        return new Weather();
     }
 
     private void sendResponse(HttpExchange exchange, int code, String response)
