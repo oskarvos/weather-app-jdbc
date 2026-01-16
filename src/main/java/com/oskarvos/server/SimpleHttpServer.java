@@ -15,7 +15,6 @@ public class SimpleHttpServer {
     }
 
     public void start() throws IOException {
-
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
         server.createContext("/weather", new WeatherHandler(weatherRepository));

@@ -8,7 +8,6 @@ import java.sql.*;
 public class WeatherRepository {
 
     public Weather save(Weather weather) {
-
         String sql = "INSERT INTO weather_data (city, temperature) VALUES (?,?)";
 
         try (Connection con = DatabaseConnection.getConnection();
@@ -20,14 +19,11 @@ public class WeatherRepository {
 
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
 
-            try (ResultSet resultSet = pstmt.getResultSet()) {
-                if (generatedKeys.next()) {
-                    weather.setId(generatedKeys.getLong(1));
-                } else {
-                    throw new SQLException("created weather failed, no ID.");
-                }
+            if (generatedKeys.next()) {
+                weather.setId(generatedKeys.getLong(1));
+            } else {
+                throw new SQLException("Created weather failed, no ID.");
             }
-
             return weather;
 
         } catch (Exception e) {
