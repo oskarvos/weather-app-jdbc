@@ -20,9 +20,8 @@ public class SimpleHttpServer {
         server.createContext("/weather", new WeatherHandler(weatherRepository));
         server.setExecutor(null);
 
-        server.start();
-
         System.out.println("Server started on http://localhost:8080");
+        server.start();
     }
 
 }
